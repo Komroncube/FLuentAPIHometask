@@ -1,4 +1,6 @@
 using FLuentAPI.DataContext;
+using FLuentAPI.ExtensionMiddlewares;
+using FLuentAPI.Middlewares;
 
 namespace FLuentAPI;
 
@@ -27,10 +29,10 @@ public class Program
 
         app.UseHttpsRedirection();
 
-        app.UseAuthorization();
+        //app.UseAuthorization();
 
-
-        app.MapControllers();
+        //app.MapControllers();
+        app.ConfigureRedirectionMap();
 
         app.Run();
     }
