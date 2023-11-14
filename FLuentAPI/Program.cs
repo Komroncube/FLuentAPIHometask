@@ -91,7 +91,10 @@ public class Program
         if (app.Environment.IsDevelopment())
         {
             app.UseSwagger();
-            app.UseSwaggerUI();
+            app.UseSwaggerUI(/*options =>
+            {
+                options.SwaggerEndpoint("/swagger/V1/swagger.json", "Auth Demo API");
+            }*/);
         }
 
         app.UseHttpsRedirection();
