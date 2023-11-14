@@ -3,14 +3,19 @@
 public class RequestMiddleware
 {
     private readonly RequestDelegate _requestDelegate;
+    private readonly ILogger _logger;
 
-    public RequestMiddleware(RequestDelegate requestDelegate)
+    public RequestMiddleware(RequestDelegate requestDelegate, ILogger<RequestMiddleware> logger)
     {
         _requestDelegate = requestDelegate;
+        _logger = logger;
     }
 
     public async Task InvokeAsync(HttpContext context)
     {
+        _logger.LogInformation("handling started");
+
+        await _requestDelegate(context);
         var path = context.Request.Path;
         switch(path)
         {
@@ -27,6 +32,7 @@ public class RequestMiddleware
                 context.Response.StatusCode = 404;
                 break;
         }
+        _logger.LogInformation($"{path}  ended");
 
         //_requestDelegate.Invoke(context);
         //return Task.CompletedTask;
