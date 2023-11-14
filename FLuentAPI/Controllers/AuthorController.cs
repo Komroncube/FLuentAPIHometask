@@ -26,7 +26,7 @@ namespace FLuentAPI.Controllers
             return Ok(res);
 
         }
-        //[Authorize]
+        [Authorize]
         [HttpGet]
         public IActionResult GetAuthorById(int id)
         {
