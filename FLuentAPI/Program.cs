@@ -18,61 +18,68 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
 
         // Add services to the container.
-        //builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-        //    .AddJwtBearer(options=>
-        //    {
-        //        options.TokenValidationParameters = new TokenValidationParameters
-        //        {
-        //            //kim tomonidan berildi
-        //            ValidateIssuer = true,
-        //            //kimga berildi
-        //            ValidateAudience = true,
-        //            //qancha muddatga berildi
-        //            ValidateLifetime = true,
-        //            //secret keyni tekshirish
-        //            ValidAudience = builder.Configuration["JWT:ValidAudience"],
-        //            ValidIssuer = builder.Configuration["JWT:ValidIssuer"],
-        //            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:SecretKey"]))
-        //        };
-        //    });
 
         builder.Services.AddControllers();
         builder.Services.AddScoped<IAuthService, AuthService>();
-        builder.Services.AddSingleton<ITokenService, TokenService>();
-        // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+        builder.Services.AddScoped<ITokenService, TokenService>();
+
+
         builder.Services.AddEndpointsApiExplorer();
 
-        //builder.Services.AddSwaggerGen(options =>
-        //{
-        //    options.SwaggerDoc("V1", new OpenApiInfo
-        //    {
-        //        Version = "v1",
-        //        Title = "BookstoreAuth",
+        
 
-        //    });
+        builder.Services.AddSwaggerGen(options =>
+        {
+            options.SwaggerDoc("V2", new OpenApiInfo
+            {
+                Version = "v2",
+                Title = "BookstoreAuth",
+                Description = "Auth test desc"
 
-        //    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
-        //    {
-        //        Scheme = "Beared",
-        //        BearerFormat = "JWT",
-        //        Type = SecuritySchemeType.Http
-        //    });
+            });
 
-        //    options.AddSecurityRequirement(new OpenApiSecurityRequirement()
-        //    {
-        //        {
-        //            new OpenApiSecurityScheme()
-        //            {
-        //                Reference = new OpenApiReference()
-        //                {
-        //                    Id = "Bearer",
-        //                    Type = ReferenceType.SecurityScheme
-        //                }
-        //            },
-        //            new List<string>()
-        //        }
-        //    });
-        //});
+            options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
+            {
+                Scheme = "Bearer",
+                BearerFormat = "JWT",
+                Description = "JWT test desc",
+                Type = SecuritySchemeType.Http
+            });
+
+            options.AddSecurityRequirement(new OpenApiSecurityRequirement()
+            {
+                {
+                    new OpenApiSecurityScheme()
+                    {
+                        Reference = new OpenApiReference()
+                        {
+                            Id = "Bearer",
+                            Type = ReferenceType.SecurityScheme
+                        }
+                    },
+                    new List<string>()
+                }
+            });
+        });
+
+        builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    //kim tomonidan berildi
+                    ValidateIssuer = true,
+                    //kimga berildi
+                    ValidateAudience = true,
+                    //qancha muddatga berildi
+                    ValidateLifetime = true,
+                    //secret keyni tekshirish
+                    ValidateIssuerSigningKey = true,
+                    ValidAudience = builder.Configuration["JWT:ValidAudience"],
+                    ValidIssuer = builder.Configuration["JWT:ValidIssuer"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:SecretKey"]))
+                };
+            });
 
         builder.Services.AddSwaggerGen();
         builder.Services.AddControllersWithViews()
@@ -91,10 +98,10 @@ public class Program
         if (app.Environment.IsDevelopment())
         {
             app.UseSwagger();
-            app.UseSwaggerUI(/*options =>
+            app.UseSwaggerUI(options =>
             {
-                options.SwaggerEndpoint("/swagger/V1/swagger.json", "Auth Demo API");
-            }*/);
+                options.SwaggerEndpoint("/swagger/V2/swagger.json", "Auth Demo API");
+            });
         }
 
         app.UseHttpsRedirection();
