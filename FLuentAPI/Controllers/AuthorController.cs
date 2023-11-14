@@ -1,6 +1,7 @@
 ﻿using FLuentAPI.DataContext;
 using FLuentAPI.DTOs;
 using FLuentAPI.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,6 +18,7 @@ namespace FLuentAPI.Controllers
             _dbContext = dbContext;
         }
 
+        [Authorize]
         [HttpGet]
         public IActionResult GetAllAuthors()
         {
@@ -24,11 +26,12 @@ namespace FLuentAPI.Controllers
             return Ok(res);
 
         }
+        //[Authorize]
         [HttpGet]
         public IActionResult GetAuthorById(int id)
         {
             var author = _dbContext.Authors.FirstOrDefault(x => x.Id == id);
-            return Ok(author);
+            return Ok(author.Books);
         }
         [HttpPost]
         public IActionResult CreateAuthor(AuthorDto authordto)
