@@ -7,6 +7,13 @@ namespace FLuentAPI.Services.TokenServices;
 
 public class TokenService : ITokenService
 {
+    private readonly IConfiguration configuration;
+
+    public TokenService(IConfiguration configuration)
+    {
+        this.configuration = configuration;
+    }
+
     public string GenerateToken(string username)
     {
         var claims = new Claim[]
@@ -18,9 +25,17 @@ public class TokenService : ITokenService
             // vaqti
             new Claim(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToString()),
         };
+
+        var credintals = new SigningCredentials(
+            new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:SecretKey"])),
+            SecurityAlgorithms.HmacSha256
+            );
         var token = new JwtSecurityToken(
-            claims:claims,
-            expires: DateTime.UtcNow.AddMinutes(1)
+            configuration["JWT:ValidIssuer"],
+            configuration["JWT:ValidAudience"],
+            claims,
+            expires: DateTime.UtcNow.AddMinutes(2),
+            signingCredentials: credintals
             );
         var tokenHandler = new JwtSecurityTokenHandler();
 
