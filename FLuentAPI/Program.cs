@@ -3,9 +3,12 @@ using FLuentAPI.ExtensionMiddlewares;
 using FLuentAPI.Middlewares;
 using FLuentAPI.Services.AuthServices;
 using FLuentAPI.Services.TokenServices;
+using FLuentAPI.Swagger;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Text;
 using System.Text.Json.Serialization;
 
@@ -26,47 +29,17 @@ public class Program
 
         builder.Services.AddEndpointsApiExplorer();
 
-        
+        builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
 
-        builder.Services.AddSwaggerGen(options =>
-        {
-            options.SwaggerDoc("V2", new OpenApiInfo
-            {
-                Version = "v2",
-                Title = "BookstoreAuth",
-                Description = "Auth test desc"
-
-            });
-
-            options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
-            {
-                Scheme = "Bearer",
-                BearerFormat = "JWT",
-                Description = "JWT test desc",
-                Type = SecuritySchemeType.Http
-            });
-
-            options.AddSecurityRequirement(new OpenApiSecurityRequirement()
-            {
-                {
-                    new OpenApiSecurityScheme()
-                    {
-                        Reference = new OpenApiReference()
-                        {
-                            Id = "Bearer",
-                            Type = ReferenceType.SecurityScheme
-                        }
-                    },
-                    new List<string>()
-                }
-            });
-        });
 
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
+                    ValidIssuer = builder.Configuration["JWT:ValidIssuer"],
+                    ValidAudience = builder.Configuration["JWT:ValidAudience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:SecretKey"])),
                     //kim tomonidan berildi
                     ValidateIssuer = true,
                     //kimga berildi
@@ -75,11 +48,10 @@ public class Program
                     ValidateLifetime = true,
                     //secret keyni tekshirish
                     ValidateIssuerSigningKey = true,
-                    ValidAudience = builder.Configuration["JWT:ValidAudience"],
-                    ValidIssuer = builder.Configuration["JWT:ValidIssuer"],
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:SecretKey"]))
+                    ClockSkew = TimeSpan.Zero
                 };
             });
+        builder.Services.AddAuthorization();
 
         builder.Services.AddSwaggerGen();
         builder.Services.AddControllersWithViews()
@@ -100,7 +72,7 @@ public class Program
             app.UseSwagger();
             app.UseSwaggerUI(options =>
             {
-                options.SwaggerEndpoint("/swagger/V2/swagger.json", "Auth Demo API");
+                options.SwaggerEndpoint("/swagger/V1/swagger.json", "Auth Demo API");
             });
         }
 
