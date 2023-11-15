@@ -14,7 +14,7 @@ public class TokenService : ITokenService
         this.configuration = configuration;
     }
 
-    public string GenerateToken(string username)
+    public string GenerateToken(string username, string role)
     {
         var claims = new Claim[]
         {
@@ -24,6 +24,7 @@ public class TokenService : ITokenService
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             // vaqti
             new Claim(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToString()),
+            new Claim(ClaimTypes.Role, role)
         };
 
         var credintals = new SigningCredentials(
