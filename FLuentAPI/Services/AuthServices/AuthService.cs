@@ -24,7 +24,7 @@ namespace FLuentAPI.Services.AuthServices
             }
             if (user.PasswordHash != loginRequest.Password)
                 throw new Exception("Password is wrong");
-            return _tokenService.GenerateToken(loginRequest.Username);
+            return _tokenService.GenerateToken(loginRequest.Username, user.Role);
         }
     }
 }
