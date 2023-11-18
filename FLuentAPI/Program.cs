@@ -29,7 +29,7 @@ public class Program
             //qaysi serviceda ishlayotganini bilish uchun
             options.InstanceName = "local";
             options.Configuration = "localhost";
-        })
+        });
         builder.Services.AddEndpointsApiExplorer();
 
         builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
