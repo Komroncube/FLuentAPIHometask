@@ -20,7 +20,7 @@ public class BookstoreDBContext : DbContext
     {
         base.OnConfiguring(optionsBuilder);
         optionsBuilder.LogTo(Console.WriteLine, LogLevel.Debug);
-        optionsBuilder.UseLazyLoadingProxies();
+        //optionsBuilder.UseLazyLoadingProxies();
     }
     public DbSet<Author> Authors { get; set; }
     public DbSet<Book> Books { get; set; }
