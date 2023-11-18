@@ -5,6 +5,8 @@ using FLuentAPI.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Distributed;
+using System.Text.Json;
 
 namespace FLuentAPI.Controllers
 {
@@ -13,25 +15,42 @@ namespace FLuentAPI.Controllers
     public class AuthorController : ControllerBase
     {
         private readonly BookstoreDBContext _dbContext;
+        private readonly IDistributedCache _distributedCache;
 
-        public AuthorController(BookstoreDBContext dbContext)
+        public AuthorController(BookstoreDBContext dbContext, IDistributedCache distributedCache)
         {
             _dbContext = dbContext;
+            _distributedCache = distributedCache;
         }
 
-        [Authorize(Roles = CustomRoles.AdminRoles)]
+        //[Authorize(Roles = CustomRoles.AdminRoles)]
         [HttpGet]
-        public IActionResult GetAllAuthors()
+        public async ValueTask<IActionResult> GetAllAuthors()
         {
-            var res = _dbContext.Authors.ToList();
-            return Ok(res);
+           /* var jsonInCache = await _distributedCache.GetStringAsync(DateTime.Now.Date.ToString());
+            if(jsonInCache is null)
+            {
 
+            }*/
+
+
+
+
+            var res = _dbContext.Authors.ToList();
+            var json = JsonSerializer.Serialize(res);
+            var done = _distributedCache.SetStringAsync("jsondata", json, new DistributedCacheEntryOptions()
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(2)
+            });
+            return Ok(json);
         }
+
         [Authorize(Roles = CustomRoles.MentorRoles)]
         [HttpGet]
         public IActionResult GetAuthorById(int id)
         {
             var author = _dbContext.Authors.FirstOrDefault(x => x.Id == id);
+
             return Ok(author.Books);
         }
         [HttpPost]
