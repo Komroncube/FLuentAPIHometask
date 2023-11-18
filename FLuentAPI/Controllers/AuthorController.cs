@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
 using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
 
 namespace FLuentAPI.Controllers
 {
@@ -27,22 +28,22 @@ namespace FLuentAPI.Controllers
         [HttpGet]
         public async ValueTask<IActionResult> GetAllAuthors()
         {
-           /* var jsonInCache = await _distributedCache.GetStringAsync(DateTime.Now.Date.ToString());
-            if(jsonInCache is null)
+            var jsonInCache = await _distributedCache.GetStringAsync(DateTime.Now.Date.ToString());
+            if (jsonInCache is null)
             {
+                var res = _dbContext.Authors.ToList();
+                jsonInCache = JsonSerializer.Serialize(res);
+                await _distributedCache.SetStringAsync(DateTime.Now.Date.ToString(), jsonInCache, new DistributedCacheEntryOptions()
+                {
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(30)
+                });
 
-            }*/
+            }
+
+            var result = JsonSerializer.Deserialize<Author[]>(jsonInCache);
 
 
-
-
-            var res = _dbContext.Authors.ToList();
-            var json = JsonSerializer.Serialize(res);
-            var done = _distributedCache.SetStringAsync("jsondata", json, new DistributedCacheEntryOptions()
-            {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(2)
-            });
-            return Ok(json);
+            return Ok(jsonInCache);
         }
 
         [Authorize(Roles = CustomRoles.MentorRoles)]
