@@ -1,13 +1,10 @@
 using FLuentAPI.DataContext;
-using FLuentAPI.ExtensionMiddlewares;
-using FLuentAPI.Middlewares;
 using FLuentAPI.Services.AuthServices;
 using FLuentAPI.Services.TokenServices;
 using FLuentAPI.Swagger;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Text;
 using System.Text.Json.Serialization;
@@ -27,6 +24,12 @@ public class Program
         builder.Services.AddScoped<ITokenService, TokenService>();
 
 
+        builder.Services.AddStackExchangeRedisCache(options =>
+        {
+            //qaysi serviceda ishlayotganini bilish uchun
+            options.InstanceName = "local";
+            options.Configuration = "localhost";
+        })
         builder.Services.AddEndpointsApiExplorer();
 
         builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
@@ -58,9 +61,6 @@ public class Program
                         .AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
         builder.Services.AddDbContext<BookstoreDBContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-
-
 
 
 
