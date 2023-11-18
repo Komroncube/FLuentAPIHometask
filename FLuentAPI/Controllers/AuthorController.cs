@@ -1,5 +1,6 @@
 ﻿using FLuentAPI.DataContext;
 using FLuentAPI.DTOs;
+using FLuentAPI.Helpers;
 using FLuentAPI.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -18,7 +19,7 @@ namespace FLuentAPI.Controllers
             _dbContext = dbContext;
         }
 
-        [Authorize]
+        [Authorize(Roles = CustomRoles.AdminRoles)]
         [HttpGet]
         public IActionResult GetAllAuthors()
         {
@@ -26,7 +27,7 @@ namespace FLuentAPI.Controllers
             return Ok(res);
 
         }
-        [Authorize]
+        [Authorize(Roles = CustomRoles.MentorRoles)]
         [HttpGet]
         public IActionResult GetAuthorById(int id)
         {
